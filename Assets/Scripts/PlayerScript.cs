@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class PlayerScript : MonoBehaviour
 {
+    public bool login = false;
     private GameManager gameManager;
     private Rigidbody cuerpoPlayer;
 

@@ -3,37 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
-using Photon.Pun.Demo.Cockpit;
 
-public class login : MonoBehaviour
+public class registerUser : MonoBehaviour
 {
+    public InputField firstNameText;
+    public InputField lastNameText;
+    public InputField emailText;
+    public InputField telefonoText;
     public InputField userText;
     public InputField passwordText;
+    public Text mensaje;
     public Canvas loginCanvas;
     public Canvas registrarCanvas;
-    public Text errorMensaje;
-    public Text userInfoText;
-    public Text userId;
-    private PlayerScript player;
-
 
     // Start is called before the first frame update
+    private string apiUrl = "http://127.0.0.1:3000/api/jugadores/jugador";
 
-    private string apiUrl = "http://localhost:3000/api/jugadores/login";
-    public void OnLoginButtonPressed()
+    public void OnRegisterButtonPressed()
     {
-        StartCoroutine(LoginRequest());
+        StartCoroutine(RegisterRequest());
     }
-
-    public void RegistrarUsuario(){
-        registrarCanvas.gameObject.SetActive(true);
-        loginCanvas.gameObject.SetActive(false);
+    public void LoginUsuario()
+    {
+        loginCanvas.gameObject.SetActive(true);
+        registrarCanvas.gameObject.SetActive(false);
     }
-
-    IEnumerator LoginRequest(){
-        
+    IEnumerator RegisterRequest()
+    {
         // Crear JSON con credenciales
-        string jsonData = "{\"username\":\"" + userText.text + "\",\"password\":\"" + passwordText.text + "\"}";
+        string jsonData = "{\"first_name\":\"" + firstNameText.text + "\",\"last_name\":\"" + lastNameText.text + "\",\"email\":\"" + emailText.text + "\",\"phone\":\"" + telefonoText.text + "\",\"username\":\"" + userText.text + "\",\"password\":\"" + passwordText.text + "\"}";
         byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(jsonData);
 
         using (UnityWebRequest request = new UnityWebRequest(apiUrl, "POST"))
@@ -51,17 +49,23 @@ public class login : MonoBehaviour
                 TokenResponse response = JsonUtility.FromJson<TokenResponse>(responseText);
                 PlayerPrefs.SetString("jwt_token", response.token); // Guardar el token
                 //Debug.Log("Login exitoso");
+                mensaje.text = "Registro exitoso";
                 loginCanvas.gameObject.SetActive(false);
+                firstNameText.text = "";
+                lastNameText.text = "";
+                emailText.text = "";
+                telefonoText.text = "";
                 userText.text = "";
                 passwordText.text = "";
-                player.login = true;
-                userInfoText.text = $"{response.username}";
-                userId.text = $"{response.id}";
-
             }
             else
             {
-                errorMensaje.text = "Error credenciales incorrectas: " + request.error;
+                mensaje.text = "Error al registrar usuario";
+                //Debug.Log("Error credenciales incorrectas: " + request.error);
+                firstNameText.text = "";
+                lastNameText.text = "";
+                emailText.text = "";
+                telefonoText.text = "";
                 userText.text = "";
                 passwordText.text = "";
             }
@@ -71,19 +75,5 @@ public class login : MonoBehaviour
     public class TokenResponse
     {
         public string token;
-        public int id;
-        public string username;
-    }
-    
-    void Start()
-    {
-        registrarCanvas.gameObject.SetActive(false);
-        player = FindObjectOfType<PlayerScript>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

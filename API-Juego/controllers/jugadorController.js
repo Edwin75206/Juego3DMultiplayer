@@ -181,8 +181,10 @@ exports.loginJugador = async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        res.status(200).json({ token });
+        // Respuesta exitosa con token y mensaje de éxito
+        res.status(200).json({ token, message: 'Login exitoso' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
