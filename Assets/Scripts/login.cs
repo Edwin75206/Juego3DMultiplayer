@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
@@ -14,24 +13,29 @@ public class login : MonoBehaviour
     public Text errorMensaje;
     public Text userInfoText;
     public Text userId;
+
     private PlayerScript player;
-
-
-    // Start is called before the first frame update
-
     private string apiUrl = "http://localhost:3000/api/jugadores/login";
+
+    void Start()
+    {
+        registrarCanvas.gameObject.SetActive(false);
+        player = FindObjectOfType<PlayerScript>();
+    }
+
     public void OnLoginButtonPressed()
     {
         StartCoroutine(LoginRequest());
     }
 
-    public void RegistrarUsuario(){
+    public void RegistrarUsuario()
+    {
         registrarCanvas.gameObject.SetActive(true);
         loginCanvas.gameObject.SetActive(false);
     }
 
-    IEnumerator LoginRequest(){
-        
+    IEnumerator LoginRequest()
+    {
         // Crear JSON con credenciales
         string jsonData = "{\"username\":\"" + userText.text + "\",\"password\":\"" + passwordText.text + "\"}";
         byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(jsonData);
@@ -46,18 +50,36 @@ public class login : MonoBehaviour
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                // Extraer el token del JSON de respuesta
+                // Depuración: imprime la respuesta completa
                 string responseText = request.downloadHandler.text;
+                Debug.Log("Respuesta del servidor: " + responseText);
+
+                // Parsear la respuesta
                 TokenResponse response = JsonUtility.FromJson<TokenResponse>(responseText);
-                PlayerPrefs.SetString("jwt_token", response.token); // Guardar el token
-                //Debug.Log("Login exitoso");
+
+                // Guardar token si lo necesitas
+                PlayerPrefs.SetString("jwt_token", response.token);
+
+                // Cerrar canvas de login
                 loginCanvas.gameObject.SetActive(false);
+
+                // Limpiar los campos
                 userText.text = "";
                 passwordText.text = "";
-                player.login = true;
-                userInfoText.text = $"{response.username}";
-                userId.text = $"{response.id}";
 
+                // Marcar al jugador como logueado
+                if (player != null)
+                {
+                    player.login = true;
+                }
+
+                // Mostrar datos en la UI
+                userInfoText.text = response.username;
+                userId.text = response.idJugador.ToString();
+
+                // Opcional: guardar el ID para usarlo en otro script
+                PlayerPrefs.SetInt("id_jugador", response.idJugador);
+                PlayerPrefs.SetString("username", response.username);
             }
             else
             {
@@ -67,23 +89,12 @@ public class login : MonoBehaviour
             }
         }
     }
+
     [System.Serializable]
     public class TokenResponse
     {
         public string token;
-        public int id;
+        public int idJugador;
         public string username;
-    }
-    
-    void Start()
-    {
-        registrarCanvas.gameObject.SetActive(false);
-        player = FindObjectOfType<PlayerScript>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

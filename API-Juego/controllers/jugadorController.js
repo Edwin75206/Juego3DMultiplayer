@@ -147,14 +147,16 @@ exports.eliminarJugador = async (req, res) => {
     }
 };
 
+
 // Login de un jugador
 exports.loginJugador = async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        // Verificamos que el usuario exista
+        // Buscas la fila en la base de datos
+        // Seleccionando la columna "idJugador" como "id_jugador" (alias)
         const [rows] = await db.execute(
-            'SELECT * FROM jugador WHERE username = ?',
+            'SELECT idJugador , username, password FROM jugador WHERE username = ?',
             [username]
         );
 
@@ -174,15 +176,20 @@ exports.loginJugador = async (req, res) => {
         // Generar token JWT
         const token = jwt.sign(
             {
-                id_jugador: jugador.id_jugador,
+                idJugador: jugador.idJugador, // Viene del alias en la consulta
                 username: jugador.username
             },
             'tu_clave_secreta',
             { expiresIn: '1h' }
         );
 
-        // Respuesta exitosa con token y mensaje de éxito
-        res.status(200).json({ token, message: 'Login exitoso' });
+        // Respuesta exitosa con token, id_jugador y username
+        res.status(200).json({
+            token,
+            message: 'Login exitoso',
+            idJugador: jugador.idJugador,
+            username: jugador.username
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

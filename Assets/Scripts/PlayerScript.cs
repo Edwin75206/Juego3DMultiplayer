@@ -141,12 +141,35 @@ public class PlayerScript : MonoBehaviourPunCallbacks
     }
 
     void quitarVida(){
-        gameManager.vidas -- ;
-        textoVidas.text = "Vidas: " + gameManager.vidas;
-        transform.position = posicionInicial;
+    // Resta la vida y actualiza la UI
+    gameManager.vidas--;
+    textoVidas.text = "Vidas: " + gameManager.vidas;
+    
+    // Reinicia la posición y la velocidad
+    transform.position = posicionInicial;
+    if(sonidoVida != null)
         sonidoVida.Play();
-        cuerpoPlayer.velocity = Vector3.zero;
+    cuerpoPlayer.velocity = Vector3.zero;
+
+    // Envía el progreso actualizado al servidor
+    registerProgres rp = FindObjectOfType<registerProgres>();
+    if (rp != null)
+    {
+         rp.StartCoroutine(rp.RegisterProgresoRequest());
     }
+
+    // Si ya no quedan vidas, activa el botón de reiniciar y muestra "Game Over"
+    if (gameManager.vidas <= 0)
+    {
+         gameManager.sonidoPerder.Play();
+         gameManager.sonidoFondo.Stop();
+         gameManager.isAlive = false;
+         textoMensaje.text = "Game Over";
+         button.gameObject.SetActive(true);
+    }
+}
+
+
 
      void OnTriggerEnter(Collider moneda){
 

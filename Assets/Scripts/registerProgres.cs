@@ -5,14 +5,22 @@ using UnityEngine.Networking;
 
 public class registerProgres : MonoBehaviour
 {
-    // No es necesario que tengas un Text para el player_id si lo obtienes de PlayerPrefs.
-    // Si lo deseas mostrar, puedes asignarlo en Start().
-    public Text score;
-    public Text lives;
+    // En este ejemplo, seguimos usando los Text para 'time' y 'level' (o puedes tomar esos valores de otra fuente)
     public Text time;
     public Text level;
     
     private string apiUrl = "http://localhost:3000/api/jugadores/progreso";
+    private GameManager gm;
+
+    void Start()
+    {
+        // Se obtiene una referencia al GameManager para usar sus variables (vidas, monedas, etc.)
+        gm = FindObjectOfType<GameManager>();
+        if(gm == null)
+        {
+            Debug.LogError("No se encontró el GameManager en la escena.");
+        }
+    }
     
     // Método para extraer la parte numérica de una cadena.
     // Ejemplo: "Monedas: 1" => "1", "Vidas: 3" => "3"
@@ -36,19 +44,11 @@ public class registerProgres : MonoBehaviour
             yield break;
         }
         
-        // Extraer y convertir a enteros los otros campos:
-        if (!int.TryParse(ExtractNumeric(score.text), out int numericScore))
-        {
-            Debug.LogError("Error convirtiendo score a entero: " + score.text);
-            yield break;
-        }
-        if (!int.TryParse(ExtractNumeric(lives.text), out int numericLives))
-        {
-            Debug.LogError("Error convirtiendo lives a entero: " + lives.text);
-            yield break;
-        }
+        // Obtener los valores de score y lives desde el GameManager
+        int numericScore = gm.monedas;  // Por ejemplo, monedas son el score.
+        int numericLives = gm.vidas;
         
-        // Convertir el campo time en formato "MM:SS" a segundos
+        // Convertir el campo time (ej. "00:24") a segundos usando el valor del Text (o puedes también obtenerlo de otra variable)
         int numericTime;
         string rawTime = ExtractNumeric(time.text);
         if (rawTime.Contains(":"))
@@ -73,13 +73,14 @@ public class registerProgres : MonoBehaviour
             }
         }
         
+        // Para el level, se lee del Text
         if (!int.TryParse(ExtractNumeric(level.text), out int numericLevel))
         {
             Debug.LogError("Error convirtiendo level a entero: " + level.text);
             yield break;
         }
         
-        // Construir el JSON usando los valores numéricos
+        // Construir el JSON usando los valores numéricos obtenidos
         string jsonData = "{\"player_id\":" + numericPlayerId +
                           ",\"score\":" + numericScore +
                           ",\"lives\":" + numericLives +
