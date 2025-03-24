@@ -1,11 +1,16 @@
 const mysql = require('mysql2');
+const fs = require('fs');
+require('dotenv').config(); // Cargar .env
 
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',      // tu usuario de MySQL
-    password: 'Pancho123',      // tu contraseña de MySQL
-    database: 'jugadorpelota',
-    port: '3308'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+    ssl: {
+        ca: fs.readFileSync(process.env.SSL_CA_PATH)
+    }
 });
 
 module.exports = pool.promise();

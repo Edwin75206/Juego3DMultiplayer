@@ -2,6 +2,7 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
+
 .utmp/
 /[Ll]ibrary/
 /[Tt]emp/
@@ -72,3 +73,11 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# ---------------------------
+# Node.js API (API-Juego)
+# ---------------------------
+
+/API-Juego/node_modules/
+/API-Juego/.env
+/API-Juego/cert/
