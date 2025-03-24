@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
-public class PlayerScript : MonoBehaviour
+public class PlayerScript : MonoBehaviourPunCallbacks
 {
     public bool login = false;
     private GameManager gameManager;
@@ -26,12 +27,14 @@ public class PlayerScript : MonoBehaviour
     public float moverVertical;
 
     public Canvas canvas;
+    private registerProgres progreso;
     Vector3 posicionInicial;
 
     // Start is called before the first frame update
     void Start()
     {
         gameManager = FindObjectOfType <GameManager>();
+        progreso = FindObjectOfType<registerProgres>();
         textoVidas.text = "Vidas: " + gameManager.vidas;
         textoMonedas.text = "Monedas: " + gameManager.monedas;
         textoMensaje.text = "";
@@ -39,7 +42,7 @@ public class PlayerScript : MonoBehaviour
         posicionInicial = transform.position;
         button.gameObject.SetActive(false); // Apaga el botón
         gameManager.sonidoFondo.Play();
-        canvas.gameObject.SetActive(false);
+        canvas.gameObject.SetActive(true);
 
         
     }
@@ -51,26 +54,34 @@ public class PlayerScript : MonoBehaviour
     }
 
     void FixedUpdate(){
-        if(gameManager.vidas > 0 && gameManager.isAlive == true){
-            moverJugador();
-            if(transform.position.y < -1){
-                quitarVida();
-            }
-        }
-        else if (gameManager.vidas == 0 && gameManager.isAlive == true){
-            gameManager.sonidoPerder.Play();
-            gameManager.sonidoFondo.Stop();
-            gameManager.isAlive = false;
-            textoMensaje.text = "Game Over";
-            button.gameObject.SetActive(true); // Prende el boton el botón
+            if(login)
+            {
+                
+            if (photonView.IsMine)
+                {
 
-        }
-        if(gameManager.monedas == 0 && gameManager.isAlive == true){
-            gameManager.sonidoGanar.Play();
-            gameManager.sonidoFondo.Stop();
-            gameManager.isAlive = false ;
-            textoMensaje.text = "Ganaste el juego"; 
-            button.gameObject.SetActive(true); // Prende el boton el botón
+                if(gameManager.vidas > 0 && gameManager.isAlive == true){
+                    moverJugador();
+                    if(transform.position.y < -1){
+                        quitarVida();
+                    }
+                }
+                else if (gameManager.vidas == 0 && gameManager.isAlive == true){
+                    gameManager.sonidoPerder.Play();
+                    gameManager.sonidoFondo.Stop();
+                    gameManager.isAlive = false;
+                    textoMensaje.text = "Game Over";
+                    button.gameObject.SetActive(true); // Prende el boton el botón
+
+                }
+                if(gameManager.monedas == 0 && gameManager.isAlive == true){
+                    gameManager.sonidoGanar.Play();
+                    gameManager.sonidoFondo.Stop();
+                    gameManager.isAlive = false ;
+                    textoMensaje.text = "Ganaste el juego"; 
+                    button.gameObject.SetActive(true); // Prende el boton el botón
+                }
+            }
         }
     }
 
@@ -144,6 +155,7 @@ public class PlayerScript : MonoBehaviour
             gameManager.monedas --;
             sonidoMoneda.Play();
             textoMonedas.text = "Monedas: " + gameManager.monedas;
+            StartCoroutine(progreso.RegisterProgresoRequest());
         }
     }
 

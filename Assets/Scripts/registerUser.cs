@@ -16,22 +16,31 @@ public class registerUser : MonoBehaviour
     public Canvas loginCanvas;
     public Canvas registrarCanvas;
 
-    // Start is called before the first frame update
-    private string apiUrl = "http://127.0.0.1:3000/api/jugadores/jugador";
+    // URL de tu API para registrar jugador
+    private string apiUrl = "http://localhost:3000/api/jugadores/jugador";
 
     public void OnRegisterButtonPressed()
     {
         StartCoroutine(RegisterRequest());
     }
+
     public void LoginUsuario()
     {
         loginCanvas.gameObject.SetActive(true);
         registrarCanvas.gameObject.SetActive(false);
     }
+
     IEnumerator RegisterRequest()
     {
         // Crear JSON con credenciales
-        string jsonData = "{\"first_name\":\"" + firstNameText.text + "\",\"last_name\":\"" + lastNameText.text + "\",\"email\":\"" + emailText.text + "\",\"phone\":\"" + telefonoText.text + "\",\"username\":\"" + userText.text + "\",\"password\":\"" + passwordText.text + "\"}";
+        string jsonData = "{" +
+            "\"nombre_jugador\":\"" + firstNameText.text + "\"," +
+            "\"apellidos_jugador\":\"" + lastNameText.text + "\"," +
+            "\"email\":\"" + emailText.text + "\"," +
+            "\"phone\":\"" + telefonoText.text + "\"," +
+            "\"username\":\"" + userText.text + "\"," +
+            "\"password\":\"" + passwordText.text + "\"" +
+        "}";
         byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(jsonData);
 
         using (UnityWebRequest request = new UnityWebRequest(apiUrl, "POST"))
@@ -44,13 +53,18 @@ public class registerUser : MonoBehaviour
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                // Extraer el token del JSON de respuesta
+                // Parsear la respuesta con la estructura que devuelve la API:
                 string responseText = request.downloadHandler.text;
-                TokenResponse response = JsonUtility.FromJson<TokenResponse>(responseText);
-                PlayerPrefs.SetString("jwt_token", response.token); // Guardar el token
-                //Debug.Log("Login exitoso");
+                JugadorResponse response = JsonUtility.FromJson<JugadorResponse>(responseText);
+
+                // Guardar el id del jugador (por ejemplo, 7) en PlayerPrefs
+                PlayerPrefs.SetInt("id_jugador", response.id_jugador);
+
+                Debug.Log("Registro exitoso. ID del jugador: " + response.id_jugador);
                 mensaje.text = "Registro exitoso";
                 loginCanvas.gameObject.SetActive(false);
+
+                // Limpiar campos
                 firstNameText.text = "";
                 lastNameText.text = "";
                 emailText.text = "";
@@ -61,7 +75,7 @@ public class registerUser : MonoBehaviour
             else
             {
                 mensaje.text = "Error al registrar usuario";
-                //Debug.Log("Error credenciales incorrectas: " + request.error);
+                Debug.Log("Error en el registro de usuario: " + request.error);
                 firstNameText.text = "";
                 lastNameText.text = "";
                 emailText.text = "";
@@ -71,9 +85,11 @@ public class registerUser : MonoBehaviour
             }
         }
     }
+
     [System.Serializable]
-    public class TokenResponse
+    public class JugadorResponse
     {
-        public string token;
+        public int id_jugador;
+        public string message;
     }
 }
