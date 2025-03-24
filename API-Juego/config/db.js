@@ -1,6 +1,5 @@
+require('dotenv').config();
 const mysql = require('mysql2');
-const fs = require('fs');
-require('dotenv').config(); // Cargar .env
 
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
@@ -9,7 +8,7 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME,
     port: process.env.DB_PORT,
     ssl: {
-        ca: fs.readFileSync(process.env.SSL_CA_PATH)
+        ca: process.env.SSL_CA_CONTENT
     }
 });
 
