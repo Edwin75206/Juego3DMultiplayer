@@ -15,7 +15,7 @@ public class login : MonoBehaviour
     public Text userId;
 
     private PlayerScript player;
-    private string apiUrl = "http://localhost:3000/api/jugadores/login";
+    private string apiUrl = "https://juego3dmultiplayer.onrender.com/api/jugadores/login";
 
     void Start()
     {

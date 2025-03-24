@@ -9,7 +9,7 @@ public class registerProgres : MonoBehaviour
     public Text time;
     public Text level;
     
-    private string apiUrl = "http://localhost:3000/api/jugadores/progreso";
+    private string apiUrl = "https://juego3dmultiplayer.onrender.com/api/jugadores/progreso";
     private GameManager gm;
 
     void Start()

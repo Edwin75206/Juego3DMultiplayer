@@ -17,7 +17,7 @@ public class registerUser : MonoBehaviour
     public Canvas registrarCanvas;
 
     // URL de tu API para registrar jugador
-    private string apiUrl = "http://localhost:3000/api/jugadores/jugador";
+    private string apiUrl = "https://juego3dmultiplayer.onrender.com/api/jugadores/jugador";
 
     public void OnRegisterButtonPressed()
     {
